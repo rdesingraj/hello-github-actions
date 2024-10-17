@@ -5,7 +5,7 @@ env:
   GH_TOKEN: ${{ github.token }}  
 jobs:
   migrate-pipeline:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, desing]
     
     steps:
       - name: Checkout repository
