@@ -1,7 +1,8 @@
 name: A workflow for my Hello World file
 on: 
   workflow_dispatch
-  
+env:
+  GH_TOKEN: ${{ github.token }}  
 jobs:
   migrate-pipeline:
     runs-on: ubuntu-latest
