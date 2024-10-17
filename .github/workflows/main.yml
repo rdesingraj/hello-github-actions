@@ -1,12 +1,40 @@
 name: A workflow for my Hello World file
-on: push
-
+on: 
+  workflow_dispatch
+  
 jobs:
-  build:
-    name: Hello world action
+  migrate-pipeline:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v1
-      - uses: ./action-a
-        with:
-          MY_NAME: "Desing"
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install GitHub Actions Importer
+        run: gh extension install github/gh-actions-importer
+
+      - name: Verify installation
+        run: gh actions-importer version
+
+      - name: Export GitLab CI pipelines
+        run: |
+          gh actions-importer export \
+            --platform gitlab \
+            --gitlab-host https://gitlab.com \
+            --token ${{ secrets.GITLAB_TOKEN }} \
+            --output ./export/
+
+      - name: Translate pipelines to GitHub Actions
+        run: |
+          gh actions-importer translate \
+            --platform gitlab \
+            --input ./export/ \
+            --output ./.github/workflows/
+
+      - name: Commit and push workflows
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add .github/workflows/*
+          git commit -m "Migrate GitLab CI to GitHub Actions workflows"
+          git push origin main
